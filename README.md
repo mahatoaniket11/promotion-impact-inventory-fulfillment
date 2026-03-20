@@ -81,6 +81,20 @@ The project uses several key datasets.
 
 ## Analytical Workflow
 
+Data Generation
+↓
+SQL Data Cleaning
+↓
+Demand Spike Analysis
+↓
+Inventory Risk Modeling
+↓
+Fulfillment Performance Analysis
+↓
+Power BI Dashboard
+↓
+Business Insights
+
 ---
 
 ## Tech Stack
@@ -89,11 +103,21 @@ Python
 SQL  
 Power BI  
 Pandas  
-Matplotlib  
 
 ---
 
 ## Repository Structure
+
+- 00_project_charter
+- 01_data
+- 02_sql
+- 03_excel_model
+- 04_analysis_notebooks
+- 05_dashboard
+- 06_docs
+- 07_presentation
+- src
+- Readme_file
 
 ---
 
