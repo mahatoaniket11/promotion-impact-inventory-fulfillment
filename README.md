@@ -114,6 +114,32 @@ The Power BI dashboard provides visibility into:
 
 ---
 
+## Dataset
+
+The analysis uses a synthetic retail dataset generated using a custom
+Python simulation engine.
+
+The dataset simulates retail operations across:
+• customers
+• products
+• promotions
+• orders
+• warehouse inventory
+• fulfillment shipments
+• product returns
+
+Total dataset size:
+        Orders: ~100k  
+        Inventory records: ~50k  
+        Promotions: ~600  
+        Customers: ~2000  
+
+The dataset generator is available in:
+
+*01_data/generation/generate_retail_dataset_v3.py*
+
+---
+
 ## Repository Structure
 
 00_project_charter/

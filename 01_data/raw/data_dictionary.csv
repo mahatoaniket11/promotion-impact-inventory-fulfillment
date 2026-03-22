@@ -1,0 +1,97 @@
+table_name,column_name,data_type,key_type,business_description
+customers,customer_id,VARCHAR,PK,Unique customer identifier (C00001 format)
+customers,segment,VARCHAR,—,Customer tier: B2C Consumer | B2B Corporate | VIP Premium | Wholesale
+customers,region,VARCHAR,—,Geographic sales region
+customers,acquisition_channel,VARCHAR,—,Marketing channel through which customer was acquired
+customers,lifetime_value,FLOAT,—,Estimated customer lifetime value in USD
+customers,avg_order_frequency,FLOAT,—,Expected number of orders placed per month
+customers,price_sensitivity_score,FLOAT,—,0–1 score; higher = more responsive to discounts
+customers,preferred_channel,VARCHAR,—,Primary ordering channel: Online | In-Store
+customers,return_rate_historical,FLOAT,—,Historical return rate for this customer (0–1)
+customers,is_active,INT,—,1 = active customer; 0 = churned / inactive
+products,product_id,VARCHAR,PK,Unique SKU identifier (P0001 format)
+products,product_name,VARCHAR,—,Descriptive SKU name including subcategory
+products,category,VARCHAR,—,Merchandise category (top-level hierarchy)
+products,subcategory,VARCHAR,—,Merchandise subcategory (second-level hierarchy)
+products,unit_cost,FLOAT,—,Landed cost per unit (COGS basis)
+products,unit_price,FLOAT,—,Standard retail selling price (pre-discount)
+products,gross_margin_pct,FLOAT,—,(unit_price - unit_cost) / unit_price × 100
+products,baseline_daily_demand,FLOAT,—,Average units demanded per day under no promotion
+products,reorder_point,INT,—,On-hand level that triggers a replenishment PO
+products,reorder_quantity,INT,—,Standard PO size per replenishment event
+products,supplier_lead_days,INT,—,Days from PO issuance to DC receipt
+products,abc_class,VARCHAR,—,ABC inventory classification: A=high | B=mid | C=slow velocity
+products,days_to_sell,FLOAT,—,30 / baseline_daily_demand — inventory turnover proxy
+products,promo_frequency_score,INT,—,Relative promotional pressure score for the category
+warehouses,warehouse_id,VARCHAR,PK,Unique DC identifier (WH001 format)
+warehouses,warehouse_name,VARCHAR,—,Distribution centre facility name
+warehouses,location_city,VARCHAR,—,City where DC is located
+warehouses,service_region,VARCHAR,—,Geographic region this DC primarily serves
+warehouses,max_daily_capacity,INT,—,Maximum orders that can be picked/packed/shipped per day
+warehouses,processing_time_days_base,INT,—,Standard order-to-carrier handoff time (days)
+warehouses,cost_per_order_usd,FLOAT,—,Operational cost per order (fulfilment cost-to-serve)
+warehouses,sla_target_pct,FLOAT,—,Target OTIF % committed to as the DC SLA
+promotions,promotion_id,VARCHAR,PK,Unique campaign identifier (PROM00001 format)
+promotions,product_id,VARCHAR,FK → products,SKU this campaign applies to
+promotions,promotion_type,VARCHAR,—,Campaign mechanic: Seasonal | Flash Sale | Clearance | Bundle | Weekend Special | Loyalty
+promotions,discount_pct,FLOAT,—,Percentage discount applied to unit_price
+promotions,start_date,DATE,—,Campaign activation date
+promotions,end_date,DATE,—,Campaign expiry date
+promotions,duration_days,INT,—,Campaign length in trading days
+promotions,promo_channel,VARCHAR,—,Online | In-Store | Omnichannel
+promotions,target_segment,VARCHAR,—,Customer segment this promotion targets
+promotions,planned_uplift_pct,FLOAT,—,Merchandising team's pre-campaign demand lift forecast (%)
+orders,order_id,VARCHAR,PK,Unique transaction identifier (ORD0000001 format)
+orders,customer_id,VARCHAR,FK → customers,Customer who placed the order
+orders,product_id,VARCHAR,FK → products,SKU ordered
+orders,warehouse_id,VARCHAR,FK → warehouses,Fulfilment DC assigned to this order
+orders,order_date,DATE,—,Date the order was placed
+orders,quantity_ordered,INT,—,Units requested by customer
+orders,unit_price_at_order,FLOAT,—,Effective price paid per unit (post-discount)
+orders,discount_applied,FLOAT,—,Active discount percentage at time of order
+orders,promo_active,INT,—,1 = a promotion was active on this SKU on this date
+orders,gross_revenue,FLOAT,—,quantity_ordered × unit_price_at_order
+orders,cogs,FLOAT,—,quantity_ordered × unit_cost
+orders,gross_profit,FLOAT,—,gross_revenue - cogs
+orders,demand_category,VARCHAR,—,Pre-Promo | During Promo | Post-Promo (promotional window label)
+orders,order_status,VARCHAR,—,Fulfilled | Backordered | Stockout | Cancelled
+orders,channel,VARCHAR,—,Online | In-Store
+inventory,inventory_id,VARCHAR,PK,Unique daily snapshot identifier
+inventory,product_id,VARCHAR,FK → products,SKU this position applies to
+inventory,warehouse_id,VARCHAR,FK → warehouses,DC holding this stock
+inventory,snapshot_date,DATE,—,End-of-day stock position date
+inventory,opening_stock,INT,—,Units on hand at start of day
+inventory,units_received,INT,—,Replenishment units received during the day
+inventory,units_sold,INT,—,Units fulfilled from available stock
+inventory,closing_stock,INT,—,End-of-day on-hand position
+inventory,days_of_supply,FLOAT,—,closing_stock / baseline_daily_demand — forward coverage
+inventory,units_on_order,INT,—,Outstanding PO units currently in transit
+inventory,reorder_triggered,INT,—,1 = a replenishment PO was raised today
+inventory,stockout_flag,INT,—,1 = demand exceeded available stock (service failure)
+inventory,fill_rate_daily,FLOAT,—,units_sold / total_demand — daily line item fill rate
+shipments,shipment_id,VARCHAR,PK,Unique fulfilment event identifier
+shipments,order_id,VARCHAR,FK → orders,Order this shipment fulfils
+shipments,product_id,VARCHAR,FK → products,SKU dispatched
+shipments,warehouse_id,VARCHAR,FK → warehouses,DC that processed the shipment
+shipments,order_date,DATE,—,Original order placement date
+shipments,scheduled_ship_date,DATE,—,Committed ship date based on DC SLA
+shipments,actual_ship_date,DATE,—,Actual date goods were handed to carrier
+shipments,processing_time_days,INT,—,Days from order receipt to carrier pickup
+shipments,delay_days,INT,—,actual_ship_date - scheduled_ship_date (0 = on time)
+shipments,shipment_status,VARCHAR,—,Shipped | Delayed | Cancelled | Partially Shipped
+shipments,quantity_ordered,INT,—,Units requested (from order)
+shipments,quantity_shipped,INT,—,Units actually dispatched
+shipments,fulfillment_rate,FLOAT,—,quantity_shipped / quantity_ordered
+shipments,otif_flag,INT,—,1 = On-Time AND In-Full (OTIF compliance flag)
+shipments,estimated_shipping_cost,FLOAT,—,DC cost_per_order × quantity_shipped
+returns,return_id,VARCHAR,PK,Unique return event identifier
+returns,order_id,VARCHAR,FK → orders,Original order being returned
+returns,customer_id,VARCHAR,FK → customers,Returning customer
+returns,product_id,VARCHAR,FK → products,SKU being returned
+returns,return_date,DATE,—,Date return was initiated by customer
+returns,days_to_return,INT,—,Days between order_date and return_date
+returns,quantity_returned,INT,—,Units returned
+returns,return_reason,VARCHAR,—,Coded reason for return
+returns,return_channel,VARCHAR,—,Online Portal | In-Store | Carrier Pickup
+returns,refund_amount,FLOAT,—,Net refund issued to customer in USD
+returns,return_disposition,VARCHAR,—,What happened to returned stock (WMS disposition code)
